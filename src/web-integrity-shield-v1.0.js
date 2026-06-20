@@ -10,6 +10,7 @@
     allowSubdomains: true,
     allowLocalhost: false,
     unauthorizedMode: 'lock',
+    redirectUrl: '',
     protectRightClick: true,
     protectViewSourceShortcuts: true,
     protectDevTools: false,
@@ -77,11 +78,32 @@
   }
 
   function handleUnauthorized(options) {
-    if (options.unauthorizedMode === 'console') {
-      console.warn('[Web Integrity Shield] Unauthorized domain:', window.location.hostname);
+    if (options.unauthorizedMode === 'blank') {
+      renderBlankScreen();
       return;
     }
+
+    if (options.unauthorizedMode === 'redirect') {
+      redirectUnauthorized(options.redirectUrl);
+      return;
+    }
+
     renderLockScreen();
+  }
+
+  function renderBlankScreen() {
+    document.documentElement.innerHTML = '';
+    document.documentElement.appendChild(document.createElement('head'));
+    document.documentElement.appendChild(document.createElement('body'));
+  }
+
+  function redirectUnauthorized(redirectUrl) {
+    var target = String(redirectUrl || '').trim();
+    if (!target) {
+      renderLockScreen();
+      return;
+    }
+    window.location.replace(target);
   }
 
   function renderLockScreen() {

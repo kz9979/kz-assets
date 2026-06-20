@@ -14,43 +14,40 @@ Web Integrity Shield is a safe client-side integrity deterrent that can lock a p
 
 ### Usage
 
-Declare the authorized domain for the current website before loading the production obfuscated shield file:
+Recommended deployment only needs this one script tag:
 
 ```html
-<script>
-window.WEB_INTEGRITY_SHIELD_CONFIG = {
-  allowedDomains: [
-    "example.com"
-  ],
-  allowSubdomains: true,
-  allowLocalhost: false,
-  unauthorizedMode: "lock",
-  redirectUrl: "",
-  protectRightClick: true,
-  protectViewSourceShortcuts: true,
-  protectDevTools: false,
-  showConsoleWarning: true
-};
-</script>
-
-<script src="https://rawcdn.githack.com/kz9979/kz-assets/main/dist/web-integrity-shield-v1.0.min.js"></script>
+<script data-cfasync="false" src="https://rawcdn.githack.com/kz9979/kz-assets/main/dist/web-integrity-shield-v1.0.min.js"></script>
 ```
 
-For better privacy and cleaner deployment, do not place all client/project domains in every webpage. Each webpage should only declare its own authorized domain.
+All default protection configuration is already embedded inside the Web Integrity Shield file. No inline `window.WEB_INTEGRITY_SHIELD_CONFIG` block is required for normal deployment.
+
+The embedded default configuration authorizes only:
+
+- `polikliniknazmir.com`
+- `www.polikliniknazmir.com`
+
+Unauthorized domains, copied hosting, preview links, Canvas hosting, and any other non-approved hostname use the safe `"scramble"` mode by default. Scramble mode replaces the page with fake obfuscated-code style output as a deterrent; it does not freeze, crash, overload, or perform malicious behavior.
+
+For a different website or domain, update the internal allowed domain list in `src/web-integrity-shield-v1.0.js`, then regenerate the production file with `npm run build:wis`. The production file `dist/web-integrity-shield-v1.0.min.js` must remain obfuscated and should not be hand-edited.
+
+Optional backward compatibility is preserved: if `window.WEB_INTEGRITY_SHIELD_CONFIG` exists before the shield loads, those values override the embedded defaults. This override path is intended for advanced/custom deployments only; normal deployment should use the one-line script tag above.
 
 ### Configuration
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `allowedDomains` | `[]` | Domains authorized to run the protected page. Add only the current website domain. |
+| `allowedDomains` | `polikliniknazmir.com`, `www.polikliniknazmir.com` | Domains authorized to run the protected page. Update the internal list in source and rebuild for a different website. |
 | `allowSubdomains` | `true` | Allows subdomains of each declared domain. |
 | `allowLocalhost` | `false` | Allows local development hosts when explicitly enabled. |
-| `unauthorizedMode` | `"lock"` | Unauthorized behavior. Use `"lock"` for the safe lock screen, `"blank"` for an empty page, or `"redirect"` with `redirectUrl`. |
-| `redirectUrl` | `""` | Redirect target used only when `unauthorizedMode` is `"redirect"`. If empty, the shield falls back to the lock screen. |
+| `unauthorizedMode` | `"scramble"` | Unauthorized behavior. Use `"scramble"` for fake obfuscated-code output, `"lock"` for the safe lock screen, `"blank"` for an empty page, or `"redirect"` with `redirectUrl`. |
+| `redirectUrl` | `"https://polikliniknazmir.com"` | Redirect target used only when `unauthorizedMode` is `"redirect"`. If empty, the shield falls back to the lock screen. |
 | `protectRightClick` | `true` | Prevents the browser context menu as a deterrent. |
 | `protectViewSourceShortcuts` | `true` | Prevents common view-source and DevTools shortcut keys as a deterrent. |
 | `protectDevTools` | `false` | Optionally logs a warning when DevTools-like viewport changes are detected. |
 | `showConsoleWarning` | `true` | Prints a console notice indicating whether protection is active or blocked. |
+| `debugMode` | `false` | Reserved for future diagnostics. |
+| `showWatermark` | `false` | Reserved for optional watermark display. |
 
 ### Build
 

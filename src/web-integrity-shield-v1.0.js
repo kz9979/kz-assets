@@ -5,20 +5,25 @@
 (function () {
   'use strict';
 
-  var DEFAULT_CONFIG = {
-    allowedDomains: [],
+  var INTERNAL_WIS_CONFIG = {
+    allowedDomains: [
+      'polikliniknazmir.com',
+      'www.polikliniknazmir.com'
+    ],
     allowSubdomains: true,
     allowLocalhost: false,
-    unauthorizedMode: 'lock',
-    redirectUrl: '',
+    debugMode: false,
+    unauthorizedMode: 'scramble',
+    redirectUrl: 'https://polikliniknazmir.com',
     protectRightClick: true,
     protectViewSourceShortcuts: true,
     protectDevTools: false,
-    showConsoleWarning: true
+    showConsoleWarning: true,
+    showWatermark: false
   };
 
   var userConfig = window.WEB_INTEGRITY_SHIELD_CONFIG || {};
-  var config = mergeConfig(DEFAULT_CONFIG, userConfig);
+  var config = mergeConfig(INTERNAL_WIS_CONFIG, userConfig);
   var currentHost = normalizeHost(window.location.hostname);
   var authorized = isAuthorizedHost(currentHost, config);
 
@@ -88,6 +93,11 @@
       return;
     }
 
+    if (options.unauthorizedMode === 'scramble') {
+      renderScrambleScreen();
+      return;
+    }
+
     renderLockScreen();
   }
 
@@ -104,6 +114,68 @@
       return;
     }
     window.location.replace(target);
+  }
+
+
+  function renderScrambleScreen() {
+    var lines = generateScrambleLines(90);
+    var css = [
+      'min-height:100vh',
+      'margin:0',
+      'background:#020617',
+      'color:#22c55e',
+      'font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace',
+      'white-space:pre-wrap',
+      'word-break:break-word',
+      'padding:24px',
+      'box-sizing:border-box',
+      'overflow:auto'
+    ].join(';');
+
+    document.documentElement.innerHTML = '';
+    document.documentElement.appendChild(document.createElement('head'));
+    document.documentElement.appendChild(document.createElement('body'));
+    document.body.style.cssText = css;
+    document.body.textContent = lines.join('\n');
+  }
+
+  function generateScrambleLines(count) {
+    var seed = hashString(window.location.hostname + window.location.pathname);
+    var tokens = ['0x', '_0x', 'function', 'return', 'const', 'let', 'var', '=>', '===', '!==', '&&', '||'];
+    var output = [
+      '/* Web Integrity Shield: unauthorized host */',
+      '/* Protected asset output intentionally obfuscated. */',
+      ''
+    ];
+
+    for (var index = 0; index < count; index += 1) {
+      seed = seededNext(seed);
+      var left = tokens[seed % tokens.length] + toHex(seed, 6);
+      seed = seededNext(seed);
+      var right = toHex(seed, 8);
+      seed = seededNext(seed);
+      var payload = toHex(seed ^ (index * 2654435761), 12);
+      output.push('var ' + left.replace(/[^a-zA-Z0-9_$]/g, '_') + '=\'' + right + payload + '\';/* ' + toHex(seed, 4) + ' */');
+    }
+
+    return output;
+  }
+
+  function hashString(value) {
+    var hash = 2166136261;
+    String(value || '').split('').forEach(function (char) {
+      hash ^= char.charCodeAt(0);
+      hash = Math.imul(hash, 16777619);
+    });
+    return hash >>> 0;
+  }
+
+  function seededNext(seed) {
+    return (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+  }
+
+  function toHex(value, length) {
+    return ('0000000000000000' + (value >>> 0).toString(16)).slice(-length);
   }
 
   function renderLockScreen() {

@@ -64,3 +64,34 @@ Run syntax checks for both the readable source and generated distribution file w
 ```sh
 npm run check:wis
 ```
+
+## `kz-security-shield-v4.1.min.js`
+
+`kz-security-shield-v4.1.min.js` preserves the v4.0 anti-clone deterrent behavior while adding the Secure WhatsApp Vault. On unauthorized hosts, copied pages, preview hosting, Canvas hosting, or other non-approved environments, v4.1 keeps the safe scramble behavior: the visible page is replaced with fake obfuscated-code-like output instead of revealing the real webpage.
+
+The embedded v4.1 authorized domains are:
+
+- `polikliniknazmir.com`
+- `www.polikliniknazmir.com`
+
+### Secure WhatsApp Vault usage
+
+Use a token in the HTML instead of placing the real WhatsApp number or `wa.me` URL directly in page source:
+
+```html
+<a href="#" data-secure-whatsapp="clinic-main">WhatsApp Kami</a>
+
+<script data-cfasync="false" src="https://cdn.jsdelivr.net/gh/kz9979/kz-assets@main/kz-security-shield-v4.1.min.js?v=1"></script>
+```
+
+On authorized domains only, the shield hydrates matching `data-secure-whatsapp="clinic-main"` elements by setting the protected `https://wa.me/...` link, `target="_blank"`, and `rel="noopener noreferrer"`. Unauthorized domains do not hydrate the link and continue to receive the obfuscated-code-like anti-clone output.
+
+Optional masked display text is supported:
+
+```html
+<span data-secure-whatsapp-label="clinic-main"></span>
+```
+
+On authorized domains, the label may display a masked value such as `+60 **-***-****`. Do not place the real WhatsApp number directly in the page source or README examples.
+
+Frontend protection is a deterrent, not a replacement for backend security, server-side authorization, access control, monitoring, or legal protection.

@@ -1,7 +1,11 @@
 {
   "scripts": {
     "build:wis": "node scripts/build-wis.js",
-    "check:wis": "node --check src/web-integrity-shield-v1.0.js && node --check dist/web-integrity-shield-v1.0.min.js"
+    "check:wis": "node --check src/web-integrity-shield-v1.0.js && node --check dist/web-integrity-shield-v1.0.min.js",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "wrangler": "^4.104.0"
+  }
 }
